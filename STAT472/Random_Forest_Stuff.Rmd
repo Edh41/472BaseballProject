@@ -1,0 +1,72 @@
+
+
+Loading possible packages
+
+```{r}
+library(rsample)     # data splitting 
+library(dplyr)       # data wrangling
+library(rpart)       # performing regression trees
+library(rpart.plot)  # plotting regression trees
+library(ipred)       # bagging
+library(caret)       # confusion matrix
+library(randomForest)  # random forest function
+library(datasets)    # other datasets to prsctice with
+library(mda)         # use mda for confusion matrix instead of caret (if needed)
+install.packages("caret")
+install.packages("mda")
+```
+
+Example data
+
+```{r}
+data = iris
+data$Species <- as.factor(data$Species)
+table(data$Species)
+set.seed(222)
+ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.7, 0.3))
+train <- data[ind==1,]
+test <- data[ind==2,]
+rf <- randomForest(Species~., data=train, proximity=TRUE)
+print(rf)
+p1 <- predict(rf, test)
+c1 <- confusion(p1, test$Species)
+c1
+```
+
+
+Trying with baseball data (Predicting Wins)
+
+```{r}
+baseballdata = read.csv("Baseball Data - Sheet1.csv")
+set.seed(222)
+spl <- sample(2, nrow(baseballdata), replace = TRUE, prob = c(0.7, 0.3))
+train <- baseballdata[spl==1,]
+test <- baseballdata[spl==2,]
+rf1 <- randomForest(data=train, W ~ . , proximity=TRUE)
+print(rf1)
+pred <- predict(rf1, test)
+PredvActual <- ggplot(test, aes(x = pred, y = W)) + geom_point() + labs(x = "Predicted Win Count", y = "Actual Win Count", title = "Predicted Wins vs Actual Wins") + geom_abline(slope = 1, intercept = 0, color = "Red")
+PredvActual
+```
+
+Random forest to predict runs
+
+```{r}
+set.seed(222)
+rf2 <- randomForest(data=train, R ~ . , proximity=TRUE)
+print(rf2)
+pred2 <- predict(rf2, test)
+PredvActual2 <- ggplot(test, aes(x = pred2, y = R)) + geom_point() + labs(x = "Predicted Runs", y = "Actual Runs", title = "Predicted Runs vs Actual Runs") + geom_abline(slope = 1, intercept = 0, color = "Red")
+PredvActual2
+```
+
+Predicting wins again, not using every variable
+
+```{r}
+set.seed(222)
+rf3 <- randomForest(data=train, W ~ . - PA - TB - OPS , proximity=TRUE)
+print(rf3)
+pred3 <- predict(rf3, test)
+PredvActual3 <- ggplot(test, aes(x = pred3, y = W)) + geom_point() + labs(x = "Predicted Win Count", y = "Actual Win Count", title = "Predicted Wins vs Actual Wins") + geom_abline(slope = 1, intercept = 0, color = "Red")
+PredvActual3
+```
