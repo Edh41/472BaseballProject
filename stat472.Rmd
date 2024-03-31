@@ -69,12 +69,12 @@ nb <- as.matrix(batterClust) %>% NbClust(diss=NULL, distance = "euclidean", min.
 
 nb1 <- as.matrix(pitcherClust) %>% NbClust(diss=NULL, distance = "euclidean", min.nc = 2, max.nc=15, method = "centroid", index = "silhouette", alphaBeale = 0.1)
 
-fviz_nbclust(batterClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
+fviz_nbclust(batterClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Batters Using PAM")
 
 
-fviz_nbclust(pitcherClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
+fviz_nbclust(pitcherClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Pitchers Using PAM")
 
-fviz_nbclust(allclust, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
+fviz_nbclust(allclust, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) 
 
 fviz_nbclust(allclust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
 ```
@@ -93,13 +93,13 @@ pcaall_corr <- cor(pcaall_norm)
 pcaallpca <- princomp(pcaall_corr)
 
 
-fviz_pca_var(pcabatterpca, col.var = "black")
-fviz_cos2(pcabatterpca, choice = "var", axes = 1:2)
+fviz_pca_var(pcabatterpca, col.var = "cos2",  gradient.cols = c("black", "red", "blue"), repel = TRUE)
+fviz_cos2(pcabatterpca, choice = "var", axes = 1:2) + scale_x_discrete(label = c("Single", "Batting Avg","XLSO", "XBA", "XSLG",  "Home Run", "Hit", "On Base + SLG", "OBP", "SLG%", "Exit Velocity Avg", "XOBP", "Strikeout", "Launch Angle Avg", "Walk","Double", "AB", "Triple", "Player Age")) + ggtitle("Cos2 Of Variables Assigned to Dimension 1 and 2 (Batters)")
 
-fviz_pca_var(pcapitcherpca, col.var = "black")
-fviz_cos2(pcapitcherpca, choice = "var", axes = 1:2)
+fviz_pca_var(pcapitcherpca, col.var = "cos2", gradient.cols = c("black", "red", "blue"), repel = TRUE)
+fviz_cos2(pcapitcherpca, choice = "var", axes = 1:2) + scale_x_discrete(label = c("XWOBA", "Strikeout", "WOBA", "Batting Avg", "XBA", "On Base + SLG", "P/IP", "XLSG", "OBP", "XOBP", "K %", "SLG %", "AB", "PA", "XLSO", "Single", "Hit", "P/Game", "BB %", "Double", "Barrel Batted Rate", "Exit Velocity Avg", "Launch Angle Avg", "Sweet Spot %", "Home Run", "Triple", "Player Age", "Walk")) + ggtitle("Cos2 Of Variables Assigned to Dimension 1 and 2 (Pitchers)")
 
-fviz_pca_var(pcaallpca, col.var = "black")
+fviz_pca_var(pcaallpca, col.var = "cos2", gradient.cols = c("black", "red", "blue"), repel = TRUE)
 fviz_cos2(pcaallpca, choice = "var", axes = 1:2)
 
 
@@ -126,7 +126,7 @@ respam <- pam(pitcherClust1, 2, metric = "euclidean", stand = FALSE)
 fviz_cluster(respam, pitcherClust, 
              geom = "point",
              ellipse.type = "convex", 
-             ggtheme = theme_bw())
+             ggtheme = theme_bw()) + ggtitle("Pitcher Cluster Using PAM") + xlab("Dimension 1 (37.8%)") + ylab("Dimension 2 (21%)")
 
 
 respam1 <- pam(batterClust1, 2, metric = "euclidean", stand = FALSE)
@@ -135,7 +135,7 @@ respam1 <- pam(batterClust1, 2, metric = "euclidean", stand = FALSE)
 fviz_cluster(respam1, batterClust, 
              geom = "point",
              ellipse.type = "convex", 
-             ggtheme = theme_bw())
+             ggtheme = theme_bw()) + ggtitle("Batter Cluster Using PAM")+ xlab("Dimension 1(39.2%)") + ylab("Dimension 2 (20.6%)")
 
 
 respam2 <- pam(allclust1, 2, metric = "euclidean", stand = FALSE)
@@ -155,13 +155,13 @@ scale_all <- scale(allclust1)
 
 
 
-fviz_nbclust(scale_pitcher, FUNcluster = kmeans ,  method = "silhouette", diss = NULL, k.max=15, print.summary = TRUE)
+fviz_nbclust(scale_pitcher, FUNcluster = kmeans ,  method = "silhouette", diss = NULL, k.max=15, print.summary = TRUE) + ggtitle("Optimal Number of Clusters for Pitchers Using Kmeans")
 
 NbClust(data=scale_pitcher, diss = NULL, distance = "euclidean", min.nc=2, max.nc=15, method = "kmeans", index = "beale")
 
 
 
-fviz_nbclust(scale_batter, FUNcluster = kmeans ,  method = "silhouette", diss = NULL, k.max=15)
+fviz_nbclust(scale_batter, FUNcluster = kmeans ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Batters Using Kmeans")
 
 
 
@@ -187,14 +187,14 @@ resK_pitcher <- kmeans(scale_pitcher, centers = 4, nstart = 20)
 fviz_cluster(resK_pitcher, scale_pitcher, 
              geom = "point",
              ellipse.type = "convex", 
-             ggtheme = theme_bw())
+             ggtheme = theme_bw()) + ggtitle("Pitcher Cluster Using Kmeans")+ xlab("Dimension 1 (37.8%)") + ylab("Dimension 2 (21%)")
 
 
 resK_batter <- kmeans(scale_batter, centers = 2, nstart = 20)
 fviz_cluster(resK_batter, scale_batter, 
              geom = "point",
              ellipse.type = "convex", 
-             ggtheme = theme_bw())
+             ggtheme = theme_bw()) + ggtitle("Batter Cluster Using Kmeans")+ xlab("Dimension 1 (39.2%)") + ylab("Dimension 2 (20.6%)")
 
 
 resK_all <- kmeans(scale_all, centers = 2, nstart = 20)
