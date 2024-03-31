@@ -62,6 +62,15 @@ pcaall <- allplayers %>% select(-`last_name, first_name`,- player_id, -year, -sa
 ```
 
 ```{r}
+scale_pitcher <- scale(pitcherClust1)
+scale_batter <- scale(batterClust1)
+scale_all <- scale(allclust1)
+```
+
+
+
+
+```{r}
 nb <- as.matrix(batterClust) %>% NbClust(diss=NULL, distance = "euclidean", min.nc = 2, max.nc=15, method = "centroid", index = "silhouette", alphaBeale = 0.1)
 
 
@@ -69,10 +78,10 @@ nb <- as.matrix(batterClust) %>% NbClust(diss=NULL, distance = "euclidean", min.
 
 nb1 <- as.matrix(pitcherClust) %>% NbClust(diss=NULL, distance = "euclidean", min.nc = 2, max.nc=15, method = "centroid", index = "silhouette", alphaBeale = 0.1)
 
-fviz_nbclust(batterClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Batters Using PAM")
+fviz_nbclust(scale_batter, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Batters Using PAM")
 
 
-fviz_nbclust(pitcherClust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Pitchers Using PAM")
+fviz_nbclust(scale_pitcher, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Pitchers Using PAM")
 
 fviz_nbclust(allclust, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) 
 
@@ -120,19 +129,19 @@ res1fviz = (res1$bestresult$cluster)
 
 
 
-respam <- pam(pitcherClust1, 2, metric = "euclidean", stand = FALSE)
+respam <- pam(scale_pitcher, 2, metric = "euclidean", stand = FALSE)
 
 
-fviz_cluster(respam, pitcherClust, 
+fviz_cluster(respam, scale_pitcher, 
              geom = "point",
              ellipse.type = "convex", 
              ggtheme = theme_bw()) + ggtitle("Pitcher Cluster Using PAM") + xlab("Dimension 1 (37.8%)") + ylab("Dimension 2 (21%)")
 
 
-respam1 <- pam(batterClust1, 2, metric = "euclidean", stand = FALSE)
+respam1 <- pam(scale_batter, 2, metric = "euclidean", stand = FALSE)
 
 
-fviz_cluster(respam1, batterClust, 
+fviz_cluster(respam1, scale_batter, 
              geom = "point",
              ellipse.type = "convex", 
              ggtheme = theme_bw()) + ggtitle("Batter Cluster Using PAM")+ xlab("Dimension 1(39.2%)") + ylab("Dimension 2 (20.6%)")
