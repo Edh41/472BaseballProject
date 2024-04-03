@@ -217,10 +217,28 @@ fviz_cluster(resK_all, scale_all,
 
 ```
 
+
+
+```{r}
+dist_pitcher <- dist(scale_pitcher, method = "euclidean")
+hclust_avg_pitcher <- hclust(dist_pitcher, method = "ward.D")
+plot(hclust_avg_pitcher)
+cut_avg_pitcher <- cutree(hclust_avg_pitcher, h=2)
+
+
+
+```
+
+
+
+
+
 ```{r}
 batterK <- batter %>% mutate(cluster = resK_batter$cluster)
 pitcherK <- pitcher %>% mutate(cluster = resK_pitcher$cluster)
-allK <- all %>% mutate(cluster = resK_all$cluster)
+allK <- allplayers %>% mutate(cluster = resK_all$cluster)
+
+ggplot(pitcherK) + geom_point(aes(y=salary, x=xwoba, color = as.factor(cluster)))
 ```
 
 
