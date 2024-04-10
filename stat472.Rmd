@@ -83,9 +83,9 @@ fviz_nbclust(scale_batter, FUNcluster = cluster::pam ,  method = "silhouette", d
 
 fviz_nbclust(scale_pitcher, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) + ggtitle("Optimal Number of Clusters for Pitchers Using PAM")
 
-fviz_nbclust(allclust, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15) 
+ 
 
-fviz_nbclust(allclust1, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
+fviz_nbclust(scale_all, FUNcluster = cluster::pam ,  method = "silhouette", diss = NULL, k.max=15)
 ```
 ```{r}
 pcabatter_norm <- scale(pcabatter)
@@ -147,10 +147,10 @@ fviz_cluster(respam1, scale_batter,
              ggtheme = theme_bw()) + ggtitle("Batter Cluster Using PAM")+ xlab("Dimension 1(39.2%)") + ylab("Dimension 2 (20.6%)")
 
 
-respam2 <- pam(allclust1, 2, metric = "euclidean", stand = FALSE)
+respam2 <- pam(scale_all, 2, metric = "euclidean", stand = FALSE)
 
 
-fviz_cluster(respam2, allclust1, 
+fviz_cluster(respam2, scale_all, 
              geom = "point",
              ellipse.type = "convex", 
              ggtheme = theme_bw())
@@ -158,6 +158,7 @@ fviz_cluster(respam2, allclust1,
 ```
 
 ```{r}
+
 scale_pitcher <- scale(pitcherClust1)
 scale_batter <- scale(batterClust1)
 scale_all <- scale(allclust1)
@@ -175,6 +176,63 @@ fviz_nbclust(scale_batter, FUNcluster = kmeans ,  method = "silhouette", diss = 
 
 
 fviz_nbclust(scale_all, FUNcluster = kmeans ,  method = "silhouette", diss = NULL, k.max=15)
+
+
+fviz_silhouette(respam)
+fviz_silhouette(respam1)
+```
+```{r}
+
+
+#elbow kmeans
+fviz_nbclust(scale_pitcher, FUNcluster = kmeans ,  method = "wss", diss = NULL, k.max=15, print.summary = TRUE)
+
+
+fviz_nbclust(scale_batter, FUNcluster = kmeans ,  method = "wss", diss = NULL, k.max=15, print.summary = TRUE)
+
+
+#elbow pam
+fviz_nbclust(scale_pitcher, FUNcluster = pam ,  method = "wss", diss = NULL, k.max=15, print.summary = TRUE)
+
+
+fviz_nbclust(scale_batter, FUNcluster = pam ,  method = "wss", diss = NULL, k.max=15, print.summary = TRUE)
+
+
+
+
+
+```
+```{r}
+respam_elbow_batter <- pam(scale_batter, 5, metric = "euclidean", stand = FALSE)
+
+
+fviz_cluster(respam_elbow_batter, scale_batter, 
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_bw())
+
+fviz_silhouette(respam_elbow_batter)
+```
+
+
+
+
+
+
+
+
+
+```{r}
+#gap statistics kmeans
+fviz_nbclust(scale_pitcher, FUNcluster = kmeans ,  method = "gap", diss = NULL, k.max=15, print.summary = TRUE)
+
+fviz_nbclust(scale_batter, FUNcluster = kmeans ,  method = "gap", diss = NULL, k.max=15, print.summary = TRUE)
+
+
+#gap pam
+fviz_nbclust(scale_pitcher, FUNcluster = pam ,  method = "gap", diss = NULL, k.max=15, print.summary = TRUE)
+
+fviz_nbclust(scale_batter, FUNcluster = pam ,  method = "gap", diss = NULL, k.max=15, print.summary = TRUE)
 
 
 ```
@@ -212,20 +270,30 @@ fviz_cluster(resK_all, scale_all,
              ellipse.type = "convex", 
              ggtheme = theme_bw())
 
- 
 
+plot(silhouette(resK_pitcher$cluster, dist_pitcher), col = 1:4,  border = NA)
+plot(silhouette(resK_batter$cluster, dist_batter), col = 1:2,  border = NA)
 
 ```
 
 
 
 ```{r}
-dist_pitcher <- dist(scale_pitcher, method = "euclidean")
-hclust_avg_pitcher <- hclust(dist_pitcher, method = "ward.D")
-plot(hclust_avg_pitcher)
-cut_avg_pitcher <- cutree(hclust_avg_pitcher, h=2)
+#dist_pitcher <- dist(scale_pitcher, method = "euclidean")
+#dist_batter <- dist(scale_batter, method = "euclidean")
+
+#hclust_avg_pitcher <- hclust(dist_pitcher, method = "ward.D")
+#plot(hclust_avg_pitcher)
+#cut_avg_pitcher <- cutree(hclust_avg_pitcher, h=2)
+
+#hclust_avg_batter <- hclust(dist_batter, method = "ward.D")
+#plot(hclust_avg_batter)
 
 
+#library(dendextend)
+#avg_dend_obj <- as.dendrogram(hclust_avg_pitcher)
+#avg_col_dend <- color_branches(avg_dend_obj, h = 2)
+#plot(avg_col_dend)
 
 ```
 
@@ -238,7 +306,18 @@ batterK <- batter %>% mutate(cluster = resK_batter$cluster)
 pitcherK <- pitcher %>% mutate(cluster = resK_pitcher$cluster)
 allK <- allplayers %>% mutate(cluster = resK_all$cluster)
 
-ggplot(pitcherK) + geom_point(aes(y=salary, x=xwoba, color = as.factor(cluster)))
+batterPam <- batter %>% mutate(cluster = respam1$clustering)
+pitcherPam <- pitcher %>% mutate(cluster = respam$clustering)
+allPam <- allplayers %>% mutate(cluster = respam2$clustering)
+
+
+ggplot(data = batterK) + geom_histogram(aes(x=salary, fill = as.factor(cluster)))
+ggplot(data = pitcherK) + geom_histogram(aes(x=salary, fill = as.factor(cluster)))
+ggplot(data = allK) + geom_histogram(aes(x = salary, fill = as.factor(cluster)))
+
+ggplot(data = batterPam) + geom_histogram(aes(x=salary, fill = as.factor(cluster)))
+ggplot(data = pitcherPam) + geom_histogram(aes(x=salary, fill = as.factor(cluster)))
+ggplot(data = allPam) + geom_histogram(aes(x = salary, fill = as.factor(cluster)))
 ```
 
 
