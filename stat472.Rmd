@@ -15,6 +15,9 @@ library(NbClust)
 library(haven)
 library(factoextra)
 library(cluster)
+library(corrplot)
+library(emmeans)
+library(rstatix)
 ```
 
 
@@ -279,8 +282,8 @@ plot(silhouette(resK_batter$cluster, dist_batter), col = 1:2,  border = NA)
 
 
 ```{r}
-#dist_pitcher <- dist(scale_pitcher, method = "euclidean")
-#dist_batter <- dist(scale_batter, method = "euclidean")
+dist_pitcher <- dist(scale_pitcher, method = "euclidean")
+dist_batter <- dist(scale_batter, method = "euclidean")
 
 #hclust_avg_pitcher <- hclust(dist_pitcher, method = "ward.D")
 #plot(hclust_avg_pitcher)
@@ -319,6 +322,69 @@ ggplot(data = batterPam) + geom_histogram(aes(x=salary, fill = as.factor(cluster
 ggplot(data = pitcherPam) + geom_histogram(aes(x=salary, fill = as.factor(cluster)))
 ggplot(data = allPam) + geom_histogram(aes(x = salary, fill = as.factor(cluster)))
 ```
+
+```{r}
+ batter %>% select(- `last_name, first_name`, -player_id, -year) %>% cor %>% corrplot()
+pitcher %>% select(- `last_name, first_name`, -player_id, -year) %>% cor %>% corrplot()
+pitcherK %>% ggplot() + geom_boxplot(aes(x=cluster, y = salary, group = cluster))
+batterK %>% ggplot() + geom_boxplot(aes(x=cluster, y = salary, group = cluster))
+
+pitcherPam %>% ggplot() + geom_boxplot(aes(x=cluster, y = salary, group = cluster))
+batterPam %>% ggplot() + geom_boxplot(aes(x = cluster, y = salary, group = cluster))
+
+
+```
+
+
+
+
+```{r}
+kruskal.test(salary ~ cluster, data = pitcherK)
+kruskal_effsize(salary ~ cluster, data = pitcherK)
+pairwise.wilcox.test(pitcherK$salary, pitcherK$cluster, p.adjust.method = "BH")
+
+dunn_test(salary ~ cluster, p.adjust.method = "BH", data = pitcherK)
+```
+
+```{r}
+kruskal.test(salary ~ cluster, data = batterK)
+kruskal_effsize(salary ~ cluster, data = batterK)
+pairwise.wilcox.test(batterK$salary, batterK$cluster, p.adjust.method = "BH")
+
+dunn_test(salary ~ cluster, p.adjust.method = "BH", data = batterK)
+```
+
+```{r}
+kruskal.test(salary ~ cluster, data = pitcherPam)
+kruskal_effsize(salary ~ cluster, data = pitcherPam)
+pairwise.wilcox.test(pitcherPam$salary, pitcherPam$cluster, p.adjust.method = "BH")
+
+dunn_test(salary ~ cluster, p.adjust.method = "BH", data = pitcherPam)
+```
+
+
+```{r}
+kruskal.test(salary ~ cluster, data = batterPam)
+kruskal_effsize(salary ~ cluster, data = batterPam)
+pairwise.wilcox.test(batterPam$salary, batterPam$cluster, p.adjust.method = "BH")
+
+dunn_test(salary ~ cluster, p.adjust.method = "BH", data = batterPam)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
