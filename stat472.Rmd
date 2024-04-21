@@ -18,6 +18,8 @@ library(cluster)
 library(corrplot)
 library(emmeans)
 library(rstatix)
+library(klustR)
+library(plotly)
 ```
 
 
@@ -109,14 +111,26 @@ fviz_pca_var(pcabatterpca, col.var = "cos2",  gradient.cols = c("black", "red", 
 fviz_cos2(pcabatterpca, choice = "var", axes = 1:2) + scale_x_discrete(label = c("Single", "Batting Avg","XLSO", "XBA", "XSLG",  "Home Run", "Hit", "On Base + SLG", "OBP", "SLG%", "Exit Velocity Avg", "XOBP", "Strikeout", "Launch Angle Avg", "Walk","Double", "AB", "Triple", "Player Age")) + ggtitle("Cos2 Of Variables Assigned to Dimension 1 and 2 (Batters)")
 
 fviz_pca_var(pcapitcherpca, col.var = "cos2", gradient.cols = c("black", "red", "blue"), repel = TRUE)
-fviz_cos2(pcapitcherpca, choice = "var", axes = 1:2) + scale_x_discrete(label = c("XWOBA", "Strikeout", "WOBA", "Batting Avg", "XBA", "On Base + SLG", "P/IP", "XLSG", "OBP", "XOBP", "K %", "SLG %", "AB", "PA", "XLSO", "Single", "Hit", "P/Game", "BB %", "Double", "Barrel Batted Rate", "Exit Velocity Avg", "Launch Angle Avg", "Sweet Spot %", "Home Run", "Triple", "Player Age", "Walk")) + ggtitle("Cos2 Of Variables Assigned to Dimension 1 and 2 (Pitchers)")
+fviz_cos2(pcapitcherpca, choice = "var", axes = 1:2) + scale_x_discrete(label = c("XWOBA", "Strikeout", "WOBA", "Batting Avg", "XBA", "On Base + SLG", "P/IP", "XLSG", "OBP", "XOBP", "K %", "SLG %", "AB", "PA", "XISO", "Single", "Hit", "P/Game", "BB %", "Double", "Barrel Batted Rate", "Exit Velocity Avg", "Launch Angle Avg", "Sweet Spot %", "Home Run", "Triple", "Player Age", "Walk")) + ggtitle("Cos2 Of Variables Assigned to Dimension 1 and 2 (Pitchers)")
 
 fviz_pca_var(pcaallpca, col.var = "cos2", gradient.cols = c("black", "red", "blue"), repel = TRUE)
 fviz_cos2(pcaallpca, choice = "var", axes = 1:2)
+fviz_eig(pcabatterpca, addlabels = TRUE)
+fviz_eig(pcapitcherpca, addlabels = TRUE)
+
 
 
 ```
 
+```{r}
+p_pitcher <- pitcherK %>%  plot_ly(x =~ xwoba, y=~ strikeout, z=~ batting_avg, color =~ as.factor(cluster), size =~ 1)
+batterK
+pitcherK
+print(p_pitcher)
+
+p_batter <- batterK %>%  plot_ly(x =~ single, y=~ batting_avg, z=~ xiso, color =~ as.factor(cluster), size =~ 1)
+print(p_batter)
+```
 
 
 
@@ -372,6 +386,10 @@ dunn_test(salary ~ cluster, p.adjust.method = "BH", data = batterPam)
 ```
 
 
+```{r}
+#pacoplot(batterClust, resK_batter$cluster)
+#pacoplot(pitcherClust, resK_pitcher$cluster)
+```
 
 
 
